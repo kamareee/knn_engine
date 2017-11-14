@@ -1,0 +1,24 @@
+<responseHeader>
+<expert>
+<error></error>
+ <predictedclass>{{predictedclass}}</predictedclass>
+<expertMatrix>1112111111111</expertMatrix>
+<matrixMatched>1112111111111</matrixMatched>
+<summary>Here is the summary.</summary>
+<prompt>Symptom: No issue with Internet connectivity (Session Online) all parameters in good conditions. Suspect WiFi Issue or Other CPE Issue.</prompt>
+<inbound>Inbound: Perform WiFi Troubleshooting with customer:
+ 1)  Advise Customer to use TM WiFi Optimizer Tools via Portal or Apps.
+ 2) Perform Scan &amp; Advise for result.
+ 3) Try to clarify with customer on WiFi SSID &amp; Re-configure WiFi If need
+ 4) If customer want to monitor create SR &amp; Assign to 2nd level for 2nd verification with customer.
+
+If Issue on other CPE, need to check MAC Address in SPANMS, If not detect, Create Report &amp; Sent to SDZ
+
+Or
+
+Please identify with customer whether issue related to performance (Slow browsing/ Streaming/ Downloading) and proceed with performance troubleshooting. If customer having issue with VOBB or IPTV, please refer to VOBB or IPTV guideline.  If problem persist, escalate to backend via SR.</inbound>
+<nextEscalation>CC 2nd Level or SDZ</nextEscalation>
+<promptAction>NA</promptAction>
+</expert>
+<responseTime>18.00</responseTime>
+</responseHeader>
