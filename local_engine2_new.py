@@ -35,7 +35,7 @@ class BarAPI(Resource):
         pp = rec[0]
         packageName = pp['siebelProfile']
 
-        if temp_prt[4:6] == 'V1':
+        if tprt[4:6] == 'V1':
             access_type = 'VDSL'
         else:
             access_type = 'FTTH'
@@ -56,7 +56,7 @@ class BarAPI(Resource):
         vlan500 = vln3['vlan']
         stat_vlan500 = vln3['isConfigured']
 
-        # VLAN
+        # VLAN600
         vln4 = traffic_rec[3]
         vlan600 = vln4['vlan']
         stat_vlan600 = vln4['isConfigured']
@@ -71,26 +71,31 @@ class BarAPI(Resource):
             downstream_attn = attr_rec[5]['value']
             downstream_snr = attr_rec[9]['value']
 
+            # vlan209_ccs
             if bool(stat_vlan209) == True:
                 dt1 = str('Enabled')
             else:
                 dt1 = str('Disabled')
 
+            # vlan400_vobb
             if bool(stat_vlan400) == True:
                 dt2 = str('Enabled')
             else:
                 dt2 = str('Disabled')
 
+            # vlan500_hsi
             if bool(stat_vlan500) == True:
                 dt3 = str('Enabled')
             else:
                 dt3 = str('Disabled')
 
+            # vlan600_iptv
             if bool(stat_vlan600) == True:
                 dt4 = str('Enabled')
             else:
                 dt4 = str('Disabled')
 
+            # Physical uplink status
             if upstrem_attn <= 20 or upstrem_attn == None:
                 if upstream_snr >= 8 or upstream_snr == None:
                     dt5 = str('Good')
@@ -99,6 +104,7 @@ class BarAPI(Resource):
             else:
                 dt5 = str('Bad')
 
+            # Physical downlink status
             if downstream_attn <= 20 or downstream_attn == None:
                 if downstream_snr >= 8 or downstream_snr == None:
                     dt6 = str('Good')
@@ -118,31 +124,37 @@ class BarAPI(Resource):
             olt_tx_pr = attr_rec[13]['value']
             olt_rx_pr = attr_rec[12]['value']
 
+            # vlan209_ccs
             if bool(stat_vlan209) == True:
                 dt1 = str('Enabled')
             else:
                 dt1 = str('Disabled')
 
+            # vlan400_vobb
             if bool(stat_vlan400) == True:
                 dt2 = str('Enabled')
             else:
                 dt2 = str('Disabled')
 
+            # vlan500_hsi
             if bool(stat_vlan500) == True:
                 dt3 = str('Enabled')
             else:
                 dt3 = str('Disabled')
 
+            # vlan600_iptv
             if bool(stat_vlan600) == True:
                 dt4 = str('Enabled')
             else:
                 dt4 = str('Disabled')
 
+            # Physical uplink status
             if olt_tx_pr >= -28:
                 dt5 = str('Good')
             else:
                 dt5 = str('Bad')
 
+            # Physical downlink status
             if olt_rx_pr >= -28:
                 dt6 = str('Good')
             else:
@@ -183,6 +195,7 @@ class BarAPI(Resource):
             lines = csv.reader(csvfile)
             dataset = list(lines)
 
+            # Converting categorical to numerical value
             for x in range(len(dataset)):
 
                 for y in range(6):
@@ -210,8 +223,10 @@ class BarAPI(Resource):
                         dataset[x][y] = int(2)
                         # dataset[x][y] = float(dataset[x][y])
 
+                # Preparing training data for KNN
                 trainingSet.append(dataset[x])
 
+        # Test data parsed from SPANMS (via South API)
         testSet.append(testdata)
 
         # Distance calculation function (Hamming distance)
@@ -222,7 +237,7 @@ class BarAPI(Resource):
 
             #  Calculate hamming distance
             for x in range(length):
-
+                # print "Printing length: ", instance1[x], instance2[x]
                 if instance1[x] == instance2[x]:
                     distance += 0
                 else:
@@ -230,6 +245,7 @@ class BarAPI(Resource):
 
             return distance
 
+        # Calculating neighbors based on distance
         def getNeighbors(trainingSet, testInstance, k):
             distances = []
             length = len(testInstance) - 1
@@ -262,6 +278,7 @@ class BarAPI(Resource):
 
             return sortedVotes[0][0]
 
+        # Predicting the class
         for x in range(len(testSet)):
             neighbors = getNeighbors(trainingSet, testSet[x], k)
             print "Neighbors: ", neighbors
@@ -270,7 +287,7 @@ class BarAPI(Resource):
             predictions.append(result)
             print "Predictions: ", predictions
 
-        # Connecting with IDEAS DB
+        # Connecting with IDEAS DB to get the 'advisory_output' table data and inserting data into 'ideas_testing_system_integration table'
         try:
             conn = psycopg2.connect(host="10.44.28.81", database="ideas", user="postgres", password="postgres")
             conn.set_session(autocommit=True)
@@ -281,27 +298,38 @@ class BarAPI(Resource):
             advisory_result = cur.fetchone()
 
             if advisory_result:
+                action = advisory_result['advisory_system_action']
                 summary = advisory_result['advisory_summary']
                 prompt = advisory_result['advisory_prompt']
                 inbound = advisory_result['advisory_inbound']
                 nextEscalation = advisory_result['advisory_next_escalation']
 
+            # Updating IDEAS DB for record keeping
+            # update_query = """ INSERT INTO ideas_testing_system_integration (login, access_type, package_name, vlan_209_ccs, vlan400_vobb, vlan500_hsi,
+            #       vlan600_iptv, physical_uplink_status, "physical_downlink_status ", "advisory_class ", "advisory_system_action ", "advisory_summary ",
+            #       "advisory_prompt ", "advisory_inbound ", "advisory_next_escalation ") VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"""
+            #
+            # cur.execute(update_query, (str(loginID), str(access_type), str(packageName), str(dt1), str(dt2), str(dt3), str(dt4),
+            #                            str(dt5), str(dt6), str(result), str(action), str(summary), str(prompt), str(inbound),
+            #                            str(nextEscalation)))
+
+
         except (Exception, psycopg2.DatabaseError) as error:
-            print 'Error in IDEAS DB\n'
+            print 'Error in IDEAS DB. \n'
             print(error)
-            sys.exit(1)
+            # sys.exit(1)
 
         finally:
             if conn is not None:
                 conn.close()
 
-
+        # Preparing ExpertMatrix and MatchedMatrix for sending data to west api
         expMatrix = ''
 
         for i in range(len(testdata)):
             expMatrix += str(testdata[i])
 
-        final_expMatrix = '_______'+ str(expMatrix)
+        final_expMatrix = '???????'+ str(expMatrix)
 
         res = neighbors[0][0:-1]
 
@@ -310,15 +338,9 @@ class BarAPI(Resource):
         for i in range(len(res)):
             matchMatrix += str(res[i])
 
-        final_matchMatrix = '_______'+ str(matchMatrix)
+        final_matchMatrix = '???????'+ str(matchMatrix)
 
-        print "Expert Matrix: ", final_expMatrix
-        print "Match Matrix: ", final_matchMatrix
-        print "Summary: ", summary
-        print "Prompt: ", prompt
-        print "inbound: ", inbound
-        print "escalation: ", nextEscalation
-
+        # Final data to send to West Api
         final_data = {
             'PredictedClass': str(result),
             'ExpertMatrix': str(final_expMatrix),
@@ -326,6 +348,7 @@ class BarAPI(Resource):
             'Summary': str(summary),
             'Prompt': str(prompt),
             'Inbound': str(inbound),
+            'Action': str(action),
             'NextEscalation': str(nextEscalation)
         }
 
