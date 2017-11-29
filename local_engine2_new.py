@@ -237,7 +237,6 @@ class BarAPI(Resource):
 
             #  Calculate hamming distance
             for x in range(length):
-                # print "Printing length: ", instance1[x], instance2[x]
                 if instance1[x] == instance2[x]:
                     distance += 0
                 else:
@@ -248,7 +247,7 @@ class BarAPI(Resource):
         # Calculating neighbors based on distance
         def getNeighbors(trainingSet, testInstance, k):
             distances = []
-            length = len(testInstance) - 1
+            length = len(testInstance)
             for x in range(len(trainingSet)):
                 dist = calculateDistance(testInstance, trainingSet[x], length)
                 distances.append((trainingSet[x], dist))
@@ -317,7 +316,7 @@ class BarAPI(Resource):
         except (Exception, psycopg2.DatabaseError) as error:
             print 'Error in IDEAS DB. \n'
             print(error)
-            # sys.exit(1)
+            # sys.exit(1) 
 
         finally:
             if conn is not None:
