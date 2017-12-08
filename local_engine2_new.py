@@ -304,13 +304,13 @@ class BarAPI(Resource):
                 nextEscalation = advisory_result['advisory_next_escalation']
 
             # Updating IDEAS DB for record keeping
-            # update_query = """ INSERT INTO ideas_testing_system_integration (login, access_type, package_name, vlan_209_ccs, vlan400_vobb, vlan500_hsi,
-            #       vlan600_iptv, physical_uplink_status, "physical_downlink_status ", "advisory_class ", "advisory_system_action ", "advisory_summary ",
-            #       "advisory_prompt ", "advisory_inbound ", "advisory_next_escalation ") VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"""
-            #
-            # cur.execute(update_query, (str(loginID), str(access_type), str(packageName), str(dt1), str(dt2), str(dt3), str(dt4),
-            #                            str(dt5), str(dt6), str(result), str(action), str(summary), str(prompt), str(inbound),
-            #                            str(nextEscalation)))
+            update_query = """ INSERT INTO ideas_testing_system_integration (login, access_type, package_name, vlan_209_ccs, vlan400_vobb, vlan500_hsi,
+                  vlan600_iptv, physical_uplink_status, "physical_downlink_status ", "advisory_class ", "advisory_system_action ", "advisory_summary ",
+                  "advisory_prompt ", "advisory_inbound ", "advisory_next_escalation ") VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"""
+            
+            cur.execute(update_query, (str(loginID), str(access_type), str(packageName), str(dt1), str(dt2), str(dt3), str(dt4),
+                                       str(dt5), str(dt6), str(result), str(action), str(summary), str(prompt), str(inbound),
+                                       str(nextEscalation)))
 
 
         except (Exception, psycopg2.DatabaseError) as error:
