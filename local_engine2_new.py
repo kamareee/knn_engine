@@ -183,7 +183,7 @@ class BarAPI(Resource):
 
 
         # Necessary variables declaration
-        filename='testdata.csv'
+        filename='testnew.csv'
         trainingSet = []
         testSet = []
         predictions = []
