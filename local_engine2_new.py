@@ -219,7 +219,7 @@ class BarAPI(Resource):
                         dataset[x][y] = int(2)
                     elif dataset[x][y] == 'Enabled':
                         dataset[x][y] = int(1)
-                    elif dataset[x][y] == 'Disable' or 'Disabled':
+                    elif dataset[x][y] == 'Disable' or dataset[x][y] == 'Disabled':
                         dataset[x][y] = int(2)
                         # dataset[x][y] = float(dataset[x][y])
 
