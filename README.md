@@ -7,4 +7,4 @@ This repo contains a KNN model specifically trained on a dataset that is collect
 
 ## Data 
 
-A sample dataset has been given in 
+Some sample datas has been given in `testdata.csv` and `testcat.csv` files. 
